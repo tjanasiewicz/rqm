@@ -2,8 +2,9 @@ package com.ibm.tests.qm;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,6 +17,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -34,10 +36,30 @@ import org.xml.sax.SAXException;
 
 public class Tools {
 
-	public List<String> retriveTestCases() {
-		List<String> listOfTestCases = null;
+	/*
+	 * An example: 
+	 * https://clm.606.local.com:9443/qm/service/com.ibm.rqm.integration.service.IIntegrationService/resources/JKE%20Banking%2007-19%20%28Quality%20Management%29/testcase
+	 */
+	public String prepareRequestGETTestCases(String publicURI, String projectAreaName) {
+		String getTestCases = "";
 
-		return listOfTestCases;
+		try {
+		
+			getTestCases = publicURI + "service/com.ibm.rqm.integration.service.IIntegrationService/resources/"
+					+ java.net.URLEncoder.encode(projectAreaName, "utf-8") + "/testcase";
+
+			String[] schemes = { "http", "https" };
+			UrlValidator urlValidator = new UrlValidator(schemes);
+			if (!urlValidator.isValid(getTestCases)) {
+				throw new java.net.MalformedURLException(getTestCases);
+			}
+			
+		} catch (UnsupportedEncodingException | MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return getTestCases;
 	}
 
 	public String replaceXMLElements(String filename, String regexPattern, String replacement) {
